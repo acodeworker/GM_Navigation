@@ -17,6 +17,8 @@ import UIKit
 
 class MyLocationViewController: UIViewController {
 
+  static let overlayHeight: CGFloat = 140
+
   private let cameraLatitude: CLLocationDegrees = -33.868
 
   private let cameraLongitude: CLLocationDegrees = 151.2086
@@ -26,7 +28,28 @@ class MyLocationViewController: UIViewController {
   lazy var mapView: GMSMapView = {
     let camera = GMSCameraPosition(
     latitude: cameraLatitude, longitude: cameraLongitude, zoom: cameraZoom)
-    return GMSMapView(frame: .zero, camera: camera)
+    let mapView = GMSMapView(frame: .zero, camera: camera)
+    mapView.isMyLocationEnabled = true
+    mapView.padding = UIEdgeInsets(
+      top: 0, left: 0, bottom: MyLocationViewController.overlayHeight, right: 0)
+    return mapView
+  }()
+  
+  private lazy var overlay: UIView = {
+    let overlay = UIView(frame: .zero)
+    overlay.backgroundColor = UIColor(hue: 0, saturation: 1, brightness: 1, alpha: 0.5)
+    
+    let btn = UIButton(type: .custom)
+    btn.setTitle("Start", for:.normal)
+    btn.setTitleColor(.red, for:.normal)
+    btn.addTarget(self, action: #selector(startAction), for: .touchUpInside)
+    overlay.addSubview(btn)
+    btn.translatesAutoresizingMaskIntoConstraints = false
+    NSLayoutConstraint.activate([
+      btn.centerXAnchor.constraint(equalTo:overlay.centerXAnchor),
+      btn.centerYAnchor.constraint(equalTo:overlay.centerYAnchor),
+    ])
+    return overlay
   }()
 
   var observation: NSKeyValueObservation?
@@ -36,10 +59,36 @@ class MyLocationViewController: UIViewController {
       mapView.camera = GMSCameraPosition(target: firstLocation.coordinate, zoom: 14)
     }
   }
+//  var orginLocation:CLLocation? = nil
+  
+  lazy var runedPath: GMSMutablePath = {
+    return GMSMutablePath()
+  }()
+  
+  lazy var runedLine: GMSPolyline = {
+    let polyline = GMSPolyline(path:GMSMutablePath())
+    polyline.strokeWidth = 6
+    polyline.strokeColor = UIColor.lightGray
+    polyline.map = self.mapView
+    return polyline
+  }()
   
   var destation:GMSMarker? = nil
 
+  var isStarted:Bool = false
 
+  override func loadView() {
+    view = mapView
+//    navigationItem.rightBarButtonItem = flyInButton
+
+    let overlayFrame = CGRect(
+      x: 0, y: -MyLocationViewController.overlayHeight, width: 0,
+      height: MyLocationViewController.overlayHeight)
+    overlay.frame = overlayFrame
+    overlay.autoresizingMask = [.flexibleTopMargin, .flexibleWidth]
+    view.addSubview(overlay)
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -55,7 +104,11 @@ class MyLocationViewController: UIViewController {
     // Listen to the myLocation property of GMSMapView.
     observation = mapView.observe(\.myLocation, options: [.new]) {
       [weak self] mapView, _ in
-      self?.location = mapView.myLocation
+      guard let strongSelf = self,let curLocation = mapView.myLocation  else{return}
+      //debugPrint("current position \(mapView.myLocation?.coordinate)")
+      strongSelf.location = curLocation
+      strongSelf.runedPath.add(curLocation.coordinate)
+      strongSelf.runedLine.path = strongSelf.runedPath
     }
     
     let startButton = UIBarButtonItem(
@@ -66,25 +119,19 @@ class MyLocationViewController: UIViewController {
   }
 
   @objc func startAction() {
-    //描绘路径
-    
     // 获取路径并绘制
     guard let start = location,let end = destation else {
       return
     }
-    RouteTool.fetchRoute(from:start.coordinate, to:end.position)
+    isStarted = true
+    runedPath.add(start.coordinate)
+    
+    fetchRoute(from: start.coordinate, to: end.position) { line in
+      line?.map = self.mapView
+      
+    }
   }
    
-   func decodePolyline(_ encodedPolyline: String) -> [CLLocationCoordinate2D]? {
-       // 解码polyline
-       // (代码同上)
-     return nil
-   }
-   
-   func drawPath(from coordinates: [CLLocationCoordinate2D]) {
-       // 绘制路径
-       // (代码同上)
-   }
 
   deinit {
     observation?.invalidate()
@@ -93,16 +140,17 @@ class MyLocationViewController: UIViewController {
 
 extension MyLocationViewController: GMSMapViewDelegate {
   func mapView(_ mapView: GMSMapView, didTapMyLocation location: CLLocationCoordinate2D) {
-    let alert = UIAlertController(
-      title: "Location Tapped",
-      message: "Current location: <\(location.latitude), \(location.longitude)>",
-      preferredStyle: .alert)
-    alert.addAction(UIAlertAction(title: "OK", style: .default))
-    present(alert, animated: true)
+//    let alert = UIAlertController(
+//      title: "Location Tapped",
+//      message: "Current location: <\(location.latitude), \(location.longitude)>",
+//      preferredStyle: .alert)
+//    alert.addAction(UIAlertAction(title: "OK", style: .default))
+//    present(alert, animated: true)
   }
   
   func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
       // 用户选择目的地
+    if isStarted {return }
     if nil == self.destation {
       destation = GMSMarker(position: coordinate)
     }else{

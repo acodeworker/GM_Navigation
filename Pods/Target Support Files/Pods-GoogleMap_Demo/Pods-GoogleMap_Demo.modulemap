@@ -1,0 +1,6 @@
+module Pods_GoogleMap_Demo {
+  umbrella header "Pods-GoogleMap_Demo-umbrella.h"
+
+  export *
+  module * { export * }
+}

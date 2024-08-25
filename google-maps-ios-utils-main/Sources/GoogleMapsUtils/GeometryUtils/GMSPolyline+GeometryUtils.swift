@@ -22,6 +22,7 @@ public extension GMSPolyline {
     guard let path = self.path else {
       return false
     }
+  
     return path.isOnPath(coordinate: coordinate, geodesic: geodesic, tolerance: tolerance)
   }
 }

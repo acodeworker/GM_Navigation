@@ -14,10 +14,15 @@
 import GoogleMaps
 import GoogleMapsBase
 import UIKit
+import GoogleMapsUtils
+
+class RideNavigationManager{
+  
+  
+}
+
 
 class MyLocationViewController: UIViewController {
-
-  static let overlayHeight: CGFloat = 140
 
   private let cameraLatitude: CLLocationDegrees = -33.868
 
@@ -25,56 +30,9 @@ class MyLocationViewController: UIViewController {
 
   private var cameraZoom: Float = 12
 
-  private var totalDistance:CLLocationDistance = 0
   
-  private var routeLine:GMSPolyline? = nil
-  
-  lazy var mapView: GMSMapView = {
-    let camera = GMSCameraPosition(
-    latitude: cameraLatitude, longitude: cameraLongitude, zoom: cameraZoom)
-    let mapView = GMSMapView(frame: .zero, camera: camera)
-    mapView.isMyLocationEnabled = true
-    mapView.overrideUserInterfaceStyle = .unspecified
-    mapView.padding = UIEdgeInsets(
-      top: 0, left: 0, bottom: MyLocationViewController.overlayHeight, right: 0)
-    return mapView
-  }()
-  
-  private var distanceLabel:UILabel? = nil
-  
-  private var timeLabel:UILabel? = nil
-
-  private lazy var actionBtn: UIButton = {
-   
-    let btn = UIButton(type: .custom)
-    btn.setTitle("Start", for:.normal)
-    btn.setTitleColor(.white, for:.normal)
-    btn.backgroundColor = .red
-    btn.addTarget(self, action: #selector(startAction), for: .touchUpInside)
-    btn.translatesAutoresizingMaskIntoConstraints = false
-    return btn
-  }()
-
-  var observation: NSKeyValueObservation?
-  var location: CLLocation? {
-    didSet {
-      guard oldValue == nil, let firstLocation = location else { return }
-      mapView.camera = GMSCameraPosition(target: firstLocation.coordinate, zoom: 14)
-    }
-  }
 //  var orginLocation:CLLocation? = nil
   
-  lazy var runedPath: GMSMutablePath = {
-    return GMSMutablePath()
-  }()
-  
-  lazy var runedLine: GMSPolyline = {
-    let polyline = GMSPolyline(path:GMSMutablePath())
-    polyline.strokeWidth = 6
-    polyline.strokeColor = UIColor.lightGray
-    polyline.map = self.mapView
-    return polyline
-  }()
   
   var destation:GMSMarker? = nil
   
@@ -84,60 +42,93 @@ class MyLocationViewController: UIViewController {
 
   var startTime:Date? = nil
 
+  var isRecalculate:Bool = false
+  
   override func loadView() {
     view = mapView
-//    navigationItem.rightBarButtonItem = flyInButton
   }
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.addSubview(actionBtn)
-    NSLayoutConstraint.activate([
-      actionBtn.centerXAnchor.constraint(equalTo:view.centerXAnchor),
-      actionBtn.bottomAnchor.constraint(equalTo:view.bottomAnchor,constant: -40),
-    ])
-    
+    initUI()
     // Opt the MapView into automatic dark mode switching.
-    mapView.overrideUserInterfaceStyle = .unspecified
-
-    mapView.delegate = self
-    mapView.settings.compassButton = true
-    mapView.settings.myLocationButton = true
-    mapView.isMyLocationEnabled = true
-    view = mapView
 
     // Listen to the myLocation property of GMSMapView.
     observation = mapView.observe(\.myLocation, options: [.new]) {
       [weak self] mapView, _ in
-      guard let strongSelf = self,let curLocation = mapView.myLocation  else{return}
+      
+      guard let strongSelf = self,let curLocation = mapView.myLocation else{ return }
+      
+      let tempLastLocation = strongSelf.location
+      strongSelf.location = curLocation
+      let gpsIsWeak = strongSelf.getGPSStrength(curLocation)
 
-      if strongSelf.isStarted,let preLocation = strongSelf.location{
-        
-        let runedDistance =  curLocation.distance(from:preLocation)
-        strongSelf.totalDistance += runedDistance
-        if runedDistance > 1 {// to avoid too many points.
-          strongSelf.runedPath.add(curLocation.coordinate)
-          strongSelf.runedLine.path = strongSelf.runedPath
-        }
+      guard let lastLocation = tempLastLocation,strongSelf.isStarted ,let line = strongSelf.routeLine,let end = strongSelf.destation?.position else{
+        return
       }
+
+      //
+      let runedDistance =  curLocation.distance(from:lastLocation)
+      guard runedDistance > 1 else {//to avoid too many points.
+        return
+      }
+      let timeInterval = curLocation.timestamp.timeIntervalSince(lastLocation.timestamp)
+      let speed = runedDistance / timeInterval
+      
+      print("User is moving, distance:\(runedDistance) speed: \(speed) m/s")
+
+      return
+//      if speed > speedThreshold {
+//         // 速度大于阈值，认为是有效移动
+//         // 处理有效的位置数据
+//     } else {
+//         // 速度低于阈值，可能是静止或GPS漂移
+//         print("Speed below threshold, ignoring this update.")
+//     }
+      strongSelf.totalDistance += runedDistance
+      
+      //draw line
+      strongSelf.runedPath.add(curLocation.coordinate)
+      strongSelf.runedLine.path = strongSelf.runedPath
+      
       //check is arrived or not.
-      if strongSelf.isStarted,let end = strongSelf.destation{
-        let distance = curLocation.distance(from:CLLocation(latitude: end.position.latitude, longitude: end.position.longitude))
-        if distance<5 {//is arrived.
-          strongSelf.endNavigation()
-        }
+      let distance = curLocation.distance(from:CLLocation(latitude: end.latitude, longitude: end.longitude))
+      if distance<10 {//is arrived.
+        strongSelf.endNavigation()
+        return
       }
       
-      strongSelf.location = curLocation
+      if gpsIsWeak{
+        return
+      }
+      //judge if you are riding outside the navigation path
+      let inline =  line.isOnPolyline(coordinate: curLocation.coordinate, tolerance:10)
+       if !inline,!strongSelf.isRecalculate{
+         strongSelf.isRecalculate = true
+         let alert = UIAlertController(
+           title:"Alert",
+           message: "You have deviated from your original planned route and need to re-plan your route",
+           preferredStyle:.alert)
+         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+           strongSelf.replanRoute(curLocation.coordinate, to:end)
+         }))
+         strongSelf.navigationController?.present(alert, animated: true)
+       }
     }
-    
-    let startButton = UIBarButtonItem(
-      barButtonSystemItem: .add, target: self, action: #selector(startAction))
-//    startButton.accessibilityLabel = "Start"
-    navigationItem.rightBarButtonItem = startButton
-
   }
 
+ private func initUI(){
+    view.addSubview(actionBtn)
+    view.addSubview(gpsLabel)
+    NSLayoutConstraint.activate([
+      actionBtn.centerXAnchor.constraint(equalTo:view.centerXAnchor),
+      actionBtn.bottomAnchor.constraint(equalTo:view.bottomAnchor,constant: -40),
+    ])
+    NSLayoutConstraint.activate([
+      gpsLabel.leftAnchor.constraint(equalTo:view.leftAnchor,constant: 2),
+      gpsLabel.bottomAnchor.constraint(equalTo:view.bottomAnchor,constant: -60),
+    ])
+  }
 
  private func endNavigation() {
     guard let startLocation = originLocation,let endLocation = location else { return}
@@ -148,9 +139,7 @@ class MyLocationViewController: UIViewController {
     }
     guard bounds.isValid else { return }
     mapView.moveCamera(GMSCameraUpdate.fit(bounds, withPadding: 50))
-   
-   routeLine?.map = nil
-   routeLine = nil
+    routeLine = nil
    
    // Take a snapshot of the map.
    UIGraphicsBeginImageContextWithOptions(mapView.bounds.size, true, 0)
@@ -185,14 +174,98 @@ class MyLocationViewController: UIViewController {
       }
     }
   }
-   
   
+  func replanRoute(_ from:CLLocationCoordinate2D,to:CLLocationCoordinate2D){
+    fetchRoute(from:from, to:to) {[weak self]line in
+      guard let strongSelf = self,let unwrapLine = line else{return }
+      strongSelf.routeLine = line
+      strongSelf.isRecalculate = false
+    }
+  }
+  
+  func getGPSStrength(_ location:CLLocation)->Bool{
+    let horizontalAccuracy = location.horizontalAccuracy
+    var strengthWeak:Bool = false
+    if 0 > horizontalAccuracy || horizontalAccuracy > 100{
+      strengthWeak = true
+      self.gpsLabel.text = "GPS:weak"
+    }else if horizontalAccuracy <= 20 {
+      self.gpsLabel.text = "GPS:strong"
+    } else if horizontalAccuracy <= 100 {
+      self.gpsLabel.text = "GPS:medium"
+    }
+    debugPrint("gps:\(horizontalAccuracy)")
+    return strengthWeak
+  }
 
   deinit {
     observation?.invalidate()
   }
-}
+  
+  
+  private var totalDistance:CLLocationDistance = 0
+  
+  private var routeLine:GMSPolyline? = nil{
+    didSet{
+      oldValue?.map = nil
+      routeLine?.map = self.mapView
+    }
+  }
 
+  var observation: NSKeyValueObservation?
+  var location: CLLocation? {
+    didSet {
+      guard oldValue == nil, let firstLocation = location else { return }
+      mapView.camera = GMSCameraPosition(target: firstLocation.coordinate, zoom: 14)
+    }
+  }
+  
+  lazy var runedPath: GMSMutablePath = {
+    return GMSMutablePath()
+  }()
+  
+  lazy var runedLine: GMSPolyline = {
+    let polyline = GMSPolyline(path:GMSMutablePath())
+    polyline.strokeWidth = 6
+    polyline.strokeColor = UIColor.lightGray
+    polyline.map = self.mapView
+    return polyline
+  }()
+  
+  lazy var mapView: GMSMapView = {
+    let camera = GMSCameraPosition(
+    latitude: cameraLatitude, longitude: cameraLongitude, zoom: cameraZoom)
+    let options = GMSMapViewOptions()
+    options.camera = camera
+    let mapView = GMSMapView.init(options: options)
+    mapView.isMyLocationEnabled = true
+    mapView.overrideUserInterfaceStyle = .unspecified
+    mapView.delegate = self
+    mapView.settings.compassButton = true
+    mapView.settings.myLocationButton = true
+    mapView.isMyLocationEnabled = true
+    return mapView
+  }()
+  
+  
+  lazy var gpsLabel: UILabel = {
+    let gpsLabel = UILabel()
+    gpsLabel.textColor = .white
+    gpsLabel.backgroundColor = .red
+    gpsLabel.translatesAutoresizingMaskIntoConstraints = false
+    return gpsLabel
+  }()
+
+  private lazy var actionBtn: UIButton = {
+    let btn = UIButton(type: .custom)
+    btn.setTitle("Start", for:.normal)
+    btn.setTitleColor(.white, for:.normal)
+    btn.backgroundColor = .red
+    btn.addTarget(self, action: #selector(startAction), for: .touchUpInside)
+    btn.translatesAutoresizingMaskIntoConstraints = false
+    return btn
+  }()
+}
 
 extension MyLocationViewController: GMSMapViewDelegate {
  

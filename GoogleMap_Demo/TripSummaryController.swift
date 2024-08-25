@@ -18,7 +18,7 @@ class TripSummaryController: UIViewController {
   
   lazy var tripImagView: UIImageView = {
     let imageview = UIImageView(image: trip.image)
-    imageview.contentMode = .center
+    imageview.contentMode = .scaleAspectFit
     imageview.translatesAutoresizingMaskIntoConstraints = false
     return imageview
   }()
@@ -32,7 +32,7 @@ class TripSummaryController: UIViewController {
   
   lazy var distanceLabel: UILabel = {
     let distanceLabel = UILabel()
-    distanceLabel.text = "Ride distance:\(trip.distance)"
+    distanceLabel.text = "Ride distance:\(trip.distance) meters"
     distanceLabel.translatesAutoresizingMaskIntoConstraints = false
     return distanceLabel
   }()
@@ -62,13 +62,13 @@ class TripSummaryController: UIViewController {
     NSLayoutConstraint.activate([
       tripImagView.leftAnchor.constraint(equalTo:self.view.leftAnchor),
       tripImagView.rightAnchor.constraint(equalTo:self.view.rightAnchor),
-      tripImagView.topAnchor.constraint(equalTo:self.view.topAnchor,constant: 64),
-      tripImagView.heightAnchor.constraint(equalToConstant: 200)
+      tripImagView.bottomAnchor.constraint(equalTo:self.view.bottomAnchor,constant: 0),
+      tripImagView.topAnchor.constraint(equalTo:self.view.topAnchor,constant: 0),
     ])
     NSLayoutConstraint.activate([
       distanceLabel.leftAnchor.constraint(equalTo:self.view.leftAnchor,constant: 20),
       distanceLabel.rightAnchor.constraint(equalTo:self.view.rightAnchor,constant: -20),
-      distanceLabel.topAnchor.constraint(equalTo:tripImagView.bottomAnchor, constant: 20)
+      distanceLabel.topAnchor.constraint(equalTo:tripImagView.bottomAnchor, constant: -120)
     ])
     
     NSLayoutConstraint.activate([

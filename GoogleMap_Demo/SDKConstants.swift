@@ -76,49 +76,65 @@ struct Coordinate: Decodable {
   }
 }
 
-private func addTrackToMap()->GMSPolyline?{
-  guard let filePath = Bundle.main.path(forResource: "track", ofType: "json") else { return nil}
-  guard let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)) else { return nil}
-  guard let track = try? JSONDecoder().decode([Coordinate].self, from: data)
-  else {
+struct RouteResponse: Codable {
+    let routes: [SubRoute]
+}
+
+struct SubRoute: Codable {
+    let polyline: Polyline
+}
+
+struct Polyline: Codable {
+    let encodedPolyline: String
+}
+
+private func addTrackToMap(_ encoderString:String)->GMSPolyline?{
+  guard let path = GMSPath(fromEncodedPath: encoderString)else{
     return nil
   }
-  let path = GMSMutablePath()
-  var colorSpans: [GMSStyleSpan] = []
-  var previousColor: UIColor?
-
-  for coordinate in track {
-    path.addLatitude(coordinate.latitude, longitude: coordinate.longitude)
-
-    let elevation = CGFloat(coordinate.elevation)
-    let toColor = UIColor.purple
-//    UIColor(hue: elevation / 700.0, saturation: 1, brightness: 0.9, alpha: 1)
-    let fromColor = previousColor ?? toColor
-    let style = GMSStrokeStyle.gradient(from: fromColor, to: toColor)
-    colorSpans.append(GMSStyleSpan(style: style))
-    previousColor = toColor
-  }
-  let polyline = GMSPolyline(path: path)
+  let polyline = GMSPolyline(path:path)
   polyline.strokeWidth = 6
-  polyline.spans = colorSpans
+  polyline.strokeColor = UIColor.purple
   return polyline
 }
 
-
+/**
+ 
+ {
+   "routes": [
+     {
+       "polyline": {
+         "encodedPolyline": "celhCoaivTCJE@aASCCFc@s@Om@lDU^mBtBgMwMcCeCQI{GgAgUcDaHaACPiAOE^k@Kc@AyAQWGFc@_IgAoEg@BSu@I}CS@m@OaBBOPg@@c@Ao@cAEE}BcDF?VoA?"
+       }
+     }
+   ]
+ }
+ */
 func fetchRoute(from startLocation: CLLocationCoordinate2D, to endLocation: CLLocationCoordinate2D, _ result: @escaping((GMSPolyline?)->Void)) {
   
   let head = Waypoint(location: Location(latLng: LatLng(latitude: startLocation.latitude, longitude: startLocation.longitude)))
   let end = Waypoint(location: Location(latLng: LatLng(latitude: endLocation.latitude, longitude: endLocation.longitude)))
   let params = Route(origin: head, destination: end)
   
-  let header:HTTPHeaders = ["X-Goog-Api-Key": SDKConstants.apiKey]
+  let header:HTTPHeaders = ["X-Goog-FieldMask":"routes.polyline.encodedPolyline","X-Goog-Api-Key": SDKConstants.apiKey,]
   AF.request("https://routes.googleapis.com/directions/v2:computeRoutes",
              method: .post,
              parameters: params,encoder: JSONParameterEncoder.default, headers: header)
-  .response { response in
-      debugPrint(response)
-     let line = addTrackToMap()
-     result(line)
+  .responseDecodable(of: RouteResponse.self) { response in
+      switch response.result {
+      case .success(let routeResponse):
+        debugPrint(routeResponse)
+        guard let encodedPolyline = routeResponse.routes.first?.polyline.encodedPolyline,let path = GMSPath(fromEncodedPath:encodedPolyline) else{
+          return
+        }
+        let polyline = GMSPolyline(path:path)
+        polyline.strokeWidth = 6
+        polyline.strokeColor = UIColor.purple
+        result(polyline)
+          
+      case .failure(let error):
+          print("Error: \(error)")
+      }
   }
 }
 

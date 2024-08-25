@@ -1,0 +1,140 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# A workflow that runs tests on every new pull request
+name: Build and Test
+
+on:
+  pull_request:
+    branches: ['*']
+  push:
+    branches:
+      - main
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_test_swift_package:
+    name: Build Swift Package
+    runs-on: macos-latest
+
+    steps:
+    # Checks out the repository under $GITHUB_WORKSPACE so this job can access it
+    - name: Checkout google-maps-ios-utils
+      uses: actions/checkout@v4
+
+    # Specify the latest stable Xcode version, since the default for macos-latest might not meet SDK minimum Xcode requirements.
+    - name: Set Xcode version
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+
+    # For as long as this is a mixed-language library, swift build will not support the Obj-C part of the code so we must use xcodebuild.
+    - name: Build and analyze Swift Package with xcodebuild
+      run: |
+        xcodebuild clean build analyze \
+          -scheme GoogleMapsUtils -configuration Debug \
+          -destination "platform=iOS Simulator,OS=17.4,name=iPhone 15" \
+          -disableAutomaticPackageResolution | xcpretty
+
+    - name: Run unit tests on Swift Package
+      run: |
+        xcodebuild test -scheme GoogleMapsUtils \
+          -destination "platform=iOS Simulator,OS=17.4,name=iPhone 15" \
+          -disableAutomaticPackageResolution
+
+    - name: Upload test results to CodeCov
+      run: bash <(curl -s https://codecov.io/bash)
+
+  # Dev App CI removed; use Sample Apps instead
+  # build_dev_app:
+  #   runs-on: macos-latest
+
+  # - name: Build DevApp
+  #   run: |
+  #     xcodebuild -scheme DevApp -configuration Debug -destination "platform=iOS Simulator,OS=16.2,name=iPhone 8" build | xcpretty
+
+  build_test_cocoapod:
+    name: Build and test the CocoaPod spec
+    runs-on: macos-latest
+    steps:
+    # Checks out the repository under $GITHUB_WORKSPACE so this job can access it
+    - name: Checkout google-maps-ios-utils
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: sudo gem install cocoapods
+
+    # Validate the library for CocoaPods locally
+    - name: CocoaPods lib lint
+      run: pod lib lint Google-Maps-iOS-Utils.podspec
+
+  build_swift_sample:
+    name: Build Swift Sample App with CocoaPods locally
+    runs-on: macos-latest
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Checkout google-maps-ios-utils
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: sudo gem install cocoapods
+
+    - name: Run pod install
+      run: pod install --project-directory=samples/SwiftDemoApp/
+
+    - name: Build SwiftDemoApp
+      run: |
+        xcodebuild -workspace samples/SwiftDemoApp/SwiftDemoApp.xcworkspace \
+          -scheme SwiftDemoApp -configuration Debug \
+          -destination "platform=iOS Simulator,OS=17.4,name=iPhone 15" build | xcpretty
+
+  build_objc_sample:
+    name: Build Objective-C Sample App with CocoaPods locally
+    runs-on: macos-latest
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Checkout google-maps-ios-utils
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: sudo gem install cocoapods
+
+    - name: Run pod install
+      run: pod install --project-directory=samples/ObjCDemoApp/
+
+    - name: Build ObjCDemoApp
+      run: |
+        xcodebuild -workspace samples/ObjCDemoApp/ObjCDemoApp.xcworkspace \
+          -scheme ObjCDemoApp -configuration Debug \
+          -destination "platform=iOS Simulator,OS=17.4,name=iPhone 15" build | xcpretty
+
+  test: # used as required status check
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    strategy:
+      fail-fast: true
+    needs:
+      - build_test_swift_package
+      # - build_dev_app
+      - build_test_cocoapod
+      - build_swift_sample
+      - build_objc_sample
+    steps:
+      - run: echo "Fail if all other steps are not successful"

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9D5EE73E8F8C4D0C7E4E968F /* libPods-GoogleMap_Demo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 12D9563794ECCB6C94893776 /* libPods-GoogleMap_Demo.a */; };
+		BD7707262C7AE429001B5B94 /* TripSummaryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7707252C7AE429001B5B94 /* TripSummaryController.swift */; };
 		BD7BAD982C79A1E7008BE52C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7BAD972C79A1E7008BE52C /* AppDelegate.swift */; };
 		BD7BAD9A2C79A1E7008BE52C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7BAD992C79A1E7008BE52C /* SceneDelegate.swift */; };
 		BD7BAD9C2C79A1E7008BE52C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7BAD9B2C79A1E7008BE52C /* ViewController.swift */; };
@@ -73,6 +74,7 @@
 /* Begin PBXFileReference section */
 		12D9563794ECCB6C94893776 /* libPods-GoogleMap_Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-GoogleMap_Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81FCD54670B39A07B81B4704 /* Pods-GoogleMap_Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GoogleMap_Demo.debug.xcconfig"; path = "Target Support Files/Pods-GoogleMap_Demo/Pods-GoogleMap_Demo.debug.xcconfig"; sourceTree = "<group>"; };
+		BD7707252C7AE429001B5B94 /* TripSummaryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripSummaryController.swift; sourceTree = "<group>"; };
 		BD7BAD942C79A1E7008BE52C /* GoogleMap_Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoogleMap_Demo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD7BAD972C79A1E7008BE52C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BD7BAD992C79A1E7008BE52C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 				BD7BAD9B2C79A1E7008BE52C /* ViewController.swift */,
 				BD7BADAB2C79A27B008BE52C /* SDKConstants.swift */,
 				BD7BADAD2C79A28A008BE52C /* MyLocationViewController.swift */,
+				BD7707252C7AE429001B5B94 /* TripSummaryController.swift */,
 				BD7BAEA72C79D505008BE52C /* Resources */,
 				BD7BAD9D2C79A1E7008BE52C /* Main.storyboard */,
 				BD7BADA02C79A1E9008BE52C /* Assets.xcassets */,
@@ -508,6 +511,7 @@
 				BD7BAD982C79A1E7008BE52C /* AppDelegate.swift in Sources */,
 				BD7BADAE2C79A28A008BE52C /* MyLocationViewController.swift in Sources */,
 				BD7BAD9A2C79A1E7008BE52C /* SceneDelegate.swift in Sources */,
+				BD7707262C7AE429001B5B94 /* TripSummaryController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

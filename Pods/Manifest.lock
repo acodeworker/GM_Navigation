@@ -1,24 +1,38 @@
 PODS:
   - Alamofire (5.9.1)
+  - Google-Maps-iOS-Utils (6.0.0):
+    - GoogleMaps (~> 9.0)
   - GoogleMaps (9.0.0):
     - GoogleMaps/Maps (= 9.0.0)
   - GoogleMaps/Base (9.0.0)
   - GoogleMaps/Maps (9.0.0):
     - GoogleMaps/Base
+  - LookinServer (1.1.4):
+    - LookinServer/Core (= 1.1.4)
+  - LookinServer/Core (1.1.4)
 
 DEPENDENCIES:
   - Alamofire
+  - Google-Maps-iOS-Utils (from `./google-maps-ios-utils-main`)
   - GoogleMaps (= 9.0.0)
+  - LookinServer (= 1.1.4)
 
 SPEC REPOS:
   trunk:
     - Alamofire
     - GoogleMaps
+    - LookinServer
+
+EXTERNAL SOURCES:
+  Google-Maps-iOS-Utils:
+    :path: "./google-maps-ios-utils-main"
 
 SPEC CHECKSUMS:
   Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
+  Google-Maps-iOS-Utils: cfe6a0239c7ca634b7e001ad059a6707143dc8dc
   GoogleMaps: 4907d0d42bf8cd58f56743e31f91d23c10682745
+  LookinServer: a5066d97f43d43b6ef69c51d6595d7ad615b67b2
 
-PODFILE CHECKSUM: a1181d4374b8ce797d5b16715891dcc6b001d550
+PODFILE CHECKSUM: 796a105dd1f467d7d360e13d6df24faf7e41f017
 
 COCOAPODS: 1.15.2

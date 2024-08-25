@@ -6,6 +6,8 @@ target 'GoogleMap_Demo' do
 #  use_frameworks!
   pod 'GoogleMaps', '= 9.0.0'
   pod 'Alamofire'
+  pod 'LookinServer', '1.1.4', :configurations => ['Debug']
+  pod 'Google-Maps-iOS-Utils', :path=>'./google-maps-ios-utils-main'
   # Pods for GoogleMap_Demo
 
 end

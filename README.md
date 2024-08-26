@@ -23,12 +23,7 @@ According to the link on the official website of Google Maps, download the demo 
 
 ### How to locate the current location?
 ```
-observation = mapView.observe(\.myLocation, options: [.new]) {
-  [weak self] mapView, _ in
-  guard let strongSelf = self,let curLocation = mapView.myLocation else{ return}
-  let result = strongSelf.getGPSStrength(curLocation)
-  strongSelf.rideManager?.updateUserFootprint(gpsIsWeak: result)
-}
+  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
 ```
 
 ### Click on the map to select a location
@@ -79,3 +74,6 @@ When the position is updated, the distance between the current point and the pre
 Calculate the distance between the current point and the destination. If it is less than 10 meters, it is considered reached.
 
 
+## To Do
+
+During the test, it was found that the location located was inconsistent with the actual location. The same was true when using the demo in Google Maps. The reason was not found yet.

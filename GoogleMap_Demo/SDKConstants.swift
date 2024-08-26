@@ -88,15 +88,15 @@ struct Polyline: Codable {
     let encodedPolyline: String
 }
 
-private func addTrackToMap(_ encoderString:String)->GMSPolyline?{
-  guard let path = GMSPath(fromEncodedPath: encoderString)else{
-    return nil
-  }
-  let polyline = GMSPolyline(path:path)
-  polyline.strokeWidth = 6
-  polyline.strokeColor = UIColor.purple
-  return polyline
-}
+//private func addTrackToMap(_ encoderString:String)->GMSPolyline?{
+//  guard let path = GMSPath(fromEncodedPath: encoderString)else{
+//    return nil
+//  }
+//  let polyline = GMSPolyline(path:path)
+//  polyline.strokeWidth = 6
+//  polyline.strokeColor = UIColor.purple
+//  return polyline
+//}
 
 /**
  

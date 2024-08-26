@@ -69,6 +69,7 @@
 		BD7BAF322C79D506008BE52C /* australia-large.png in Resources */ = {isa = PBXBuildFile; fileRef = BD7BAEFC2C79D505008BE52C /* australia-large.png */; };
 		BD7BAF332C79D506008BE52C /* botswana.png in Resources */ = {isa = PBXBuildFile; fileRef = BD7BAEFE2C79D505008BE52C /* botswana.png */; };
 		BD7BAF342C79D506008BE52C /* step4@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BD7BAEFF2C79D505008BE52C /* step4@2x.png */; };
+		BDD7EF342C7C5E0D00B7EF45 /* RideNavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD7EF332C7C5E0D00B7EF45 /* RideNavigationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -170,6 +171,7 @@
 		BD7BAEFD2C79D505008BE52C /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		BD7BAEFE2C79D505008BE52C /* botswana.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = botswana.png; sourceTree = "<group>"; };
 		BD7BAEFF2C79D505008BE52C /* step4@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "step4@2x.png"; sourceTree = "<group>"; };
+		BDD7EF332C7C5E0D00B7EF45 /* RideNavigationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideNavigationManager.swift; sourceTree = "<group>"; };
 		E0917ADB4E4A18A4A4F5E884 /* Pods-GoogleMap_Demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GoogleMap_Demo.release.xcconfig"; path = "Target Support Files/Pods-GoogleMap_Demo/Pods-GoogleMap_Demo.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -229,6 +231,7 @@
 				BD7BADAB2C79A27B008BE52C /* SDKConstants.swift */,
 				BD7BADAD2C79A28A008BE52C /* MyLocationViewController.swift */,
 				BD7707252C7AE429001B5B94 /* TripSummaryController.swift */,
+				BDD7EF332C7C5E0D00B7EF45 /* RideNavigationManager.swift */,
 				BD7BAEA72C79D505008BE52C /* Resources */,
 				BD7BAD9D2C79A1E7008BE52C /* Main.storyboard */,
 				BD7BADA02C79A1E9008BE52C /* Assets.xcassets */,
@@ -511,6 +514,7 @@
 				BD7BAD982C79A1E7008BE52C /* AppDelegate.swift in Sources */,
 				BD7BADAE2C79A28A008BE52C /* MyLocationViewController.swift in Sources */,
 				BD7BAD9A2C79A1E7008BE52C /* SceneDelegate.swift in Sources */,
+				BDD7EF342C7C5E0D00B7EF45 /* RideNavigationManager.swift in Sources */,
 				BD7707262C7AE429001B5B94 /* TripSummaryController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

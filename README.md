@@ -1,50 +1,81 @@
-## 项目运行
-请执行`pod install`。
-## 项目功能总结
+## Project running
+Please execute `pod install`.
 
-- 启动时定位到当前位置
-- 点击地图选择目的地。
-- 点击开始会绘制路线图
-- 移动时绘制走过的路径
-- 实时监测GPS信号强度。
-- 用户偏离路径会提示重新规划路径
-- 到达目的地自动结束。 
+## Project function summary
 
-## 实现步骤
-根据google maps官网上的链接，下载demo文件，查看相应的接口文档。借助vpn下载对应的依赖库，运行项目。
+- Navigate to current location on startup
+- Click on the map to select your destination.
+- Click Start to draw a route map
+- Draw the path taken while moving
+- Monitor GPS signal strength in real time.
+- If the user deviates from the path, the user will be prompted to re-plan the path.
+- Ends automatically when reaching destination. 
 
-- MyLocationViewController 导航页面
-- TripSummaryController 路程总结页面
-- SDKConstants 路线请求
-- RideNavigationManager 核心类，导航的所有业务逻辑。
+## Implementation steps
+According to the link on the official website of Google Maps, download the demo file and view the corresponding interface document. Use VPN to download the corresponding dependent libraries and run the project.
 
-## 关键问题思路
+- MyLocationViewController navigation page
+- TripSummaryController trip summary page
+- SDKConstants route request
+- RideNavigationManager core class, all business logic of navigation.
 
-### 如何定位当前位置？
- 
+## Key question ideas
 
-### 点击地图选择地点
- 
+### How to locate the current location?
+```
+observation = mapView.observe(\.myLocation, options: [.new]) {
+  [weak self] mapView, _ in
+  guard let strongSelf = self,let curLocation = mapView.myLocation else{ return}
+  let result = strongSelf.getGPSStrength(curLocation)
+  strongSelf.rideManager?.updateUserFootprint(gpsIsWeak: result)
+}
+```
 
-### 点击开始会绘制路线图
-根据google[文档链接]，请求数据逻辑`fetchRoute`方法。
+### Click on the map to select a location
+```
+func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
+      // 用户选择目的地
+    if isStarted {return }
+    if nil == self.destation {
+      destation = GMSMarker(position: coordinate)
+    }else{
+      destation?.position = coordinate
+    }
+    destation?.title = "destation!"
+    destation?.map = mapView
+  }
+```
 
-### 返回路径数据解析逻辑
- 
+### Click Start to draw a road map
+According to google[documentation link](https://developers.google.com/maps/documentation/routes/compute_route_directions?hl=zh-cn), request data logic `fetchRoute` method.
 
-### 路径绘制
- 
-### 走过的路径绘制
-根据位置更新函数，不断获取当前点，拼接到我的路径上，并更新。
-### 用户偏离监测
-借助GMSPath的如下分类方法
- 
-### 行程总结
-位置更新时，计算当前点与上个点的距离。然后累加得出总路程。开始骑行时记录一个时间，结束时算差值得到时间。结束时，把导航路线移除，然后调整mapview尺寸，利用sdk的截屏方法生成一张图片，跳转到下一个页面展示。详情见`endNavigation`方法 。
-### 到达目的地检查
-计算当前点和目的地的距离，小于10认为到达。
+### Return path data parsing logic
 
+```
+guard let encodedPolyline = routeResponse.routes.first?.polyline.encodedPolyline,let path = GMSPath(fromEncodedPath:encodedPolyline) else{
+          return }
+```
 
+### Path drawing
 
+```
+let polyline = GMSPolyline(path:path)
+polyline.strokeWidth = 6
+polyline.strokeColor = UIColor.purple
+polyline.map = mapview
+```
+### Drawing the path traveled
+According to the position update function, the current point is continuously obtained, spliced ​​to my path, and updated.
+### User deviation monitoring
+Using the following classification method of GMSPath
+
+```
+ func isOnPolyline(coordinate: CLLocationCoordinate2D, tolerance: Double = GMSPath.defaultToleranceInMeters) -> Bool {}
+```
+### Trip summary
+When the position is updated, the distance between the current point and the previous point is calculated. Then add up to get the total distance. Record a time when you start riding, and calculate the difference at the end to get the time. At the end, remove the navigation route, then adjust the mapview size, use the SDK's screenshot method to generate a picture, and jump to the next page for display. See the `endNavigation` method for details.
+
+### Check at destination
+Calculate the distance between the current point and the destination. If it is less than 10 meters, it is considered reached.
 
 

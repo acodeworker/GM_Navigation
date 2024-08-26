@@ -14,10 +14,10 @@ Please execute `pod install`.
 ## Implementation steps
 According to the link on the official website of Google Maps, download the demo file and view the corresponding interface document. Use VPN to download the corresponding dependent libraries and run the project.
 
-- MyLocationViewController navigation page
-- TripSummaryController trip summary page
-- SDKConstants route request
-- RideNavigationManager core class, all business logic of navigation.
+- MyLocationViewController.swift navigation page
+- TripSummaryController.swift trip summary page
+- SDKConstants.swift route request
+- RideNavigationManager.swift core class, all business logic of navigation.
 
 ## Key question ideas
 

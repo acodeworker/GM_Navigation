@@ -68,7 +68,9 @@ Using the following classification method of GMSPath
  func isOnPolyline(coordinate: CLLocationCoordinate2D, tolerance: Double = GMSPath.defaultToleranceInMeters) -> Bool {}
 ```
 ### Trip summary
-When the position is updated, the distance between the current point and the previous point is calculated. Then add up to get the total distance. Record a time when you start riding, and calculate the difference at the end to get the time. At the end, remove the navigation route, then adjust the mapview size, use the SDK's screenshot method to generate a picture, and jump to the next page for display. See the `endNavigation` method for details.
+When the position is updated, the distance between the current point and the previous point is calculated. Then add up to get the total distance. Record a time when you start riding, and calculate the difference at the end to get the time. At the end, remove the navigation route, then adjust the mapview size, use the SDK's screenshot method to generate a picture, and jump to the next page for display. 
+
+See the `endNavigation` method for details.
 
 ### Check at destination
 Calculate the distance between the current point and the destination. If it is less than 10 meters, it is considered reached.

@@ -16,14 +16,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard let scene = scene as? UIWindowScene else { return }
     window = .init(windowScene: scene)
 
-    let locationController = MyLocationViewController()
-    let navigationController = UINavigationController(rootViewController: locationController)
-    let detailController = UIViewController()
-//    let splitViewController = UISplitViewController()
-
-//    splitViewController.delegate = locationController as! any UISplitViewControllerDelegate
-//    splitViewController.preferredDisplayMode = .oneBesideSecondary
-//    splitViewController.viewControllers = [navigationController, detailController]
+    let detailController = UIViewController.init()
+    let navigationController = UINavigationController(rootViewController: detailController)
     window?.rootViewController = navigationController
     window?.makeKeyAndVisible()
   }

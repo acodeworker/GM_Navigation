@@ -10,7 +10,6 @@
 		9D5EE73E8F8C4D0C7E4E968F /* libPods-GoogleMap_Demo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 12D9563794ECCB6C94893776 /* libPods-GoogleMap_Demo.a */; };
 		BD7707262C7AE429001B5B94 /* TripSummaryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7707252C7AE429001B5B94 /* TripSummaryController.swift */; };
 		BD7BAD982C79A1E7008BE52C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7BAD972C79A1E7008BE52C /* AppDelegate.swift */; };
-		BD7BAD9A2C79A1E7008BE52C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7BAD992C79A1E7008BE52C /* SceneDelegate.swift */; };
 		BD7BAD9C2C79A1E7008BE52C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7BAD9B2C79A1E7008BE52C /* ViewController.swift */; };
 		BD7BAD9F2C79A1E7008BE52C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BD7BAD9D2C79A1E7008BE52C /* Main.storyboard */; };
 		BD7BADA12C79A1E9008BE52C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD7BADA02C79A1E9008BE52C /* Assets.xcassets */; };
@@ -78,7 +77,6 @@
 		BD7707252C7AE429001B5B94 /* TripSummaryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripSummaryController.swift; sourceTree = "<group>"; };
 		BD7BAD942C79A1E7008BE52C /* GoogleMap_Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoogleMap_Demo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD7BAD972C79A1E7008BE52C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		BD7BAD992C79A1E7008BE52C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		BD7BAD9B2C79A1E7008BE52C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		BD7BAD9E2C79A1E7008BE52C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		BD7BADA02C79A1E9008BE52C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -226,7 +224,6 @@
 			isa = PBXGroup;
 			children = (
 				BD7BAD972C79A1E7008BE52C /* AppDelegate.swift */,
-				BD7BAD992C79A1E7008BE52C /* SceneDelegate.swift */,
 				BD7BAD9B2C79A1E7008BE52C /* ViewController.swift */,
 				BD7BADAB2C79A27B008BE52C /* SDKConstants.swift */,
 				BD7BADAD2C79A28A008BE52C /* MyLocationViewController.swift */,
@@ -513,7 +510,6 @@
 				BD7BAD9C2C79A1E7008BE52C /* ViewController.swift in Sources */,
 				BD7BAD982C79A1E7008BE52C /* AppDelegate.swift in Sources */,
 				BD7BADAE2C79A28A008BE52C /* MyLocationViewController.swift in Sources */,
-				BD7BAD9A2C79A1E7008BE52C /* SceneDelegate.swift in Sources */,
 				BDD7EF342C7C5E0D00B7EF45 /* RideNavigationManager.swift in Sources */,
 				BD7707262C7AE429001B5B94 /* TripSummaryController.swift in Sources */,
 			);
@@ -713,7 +709,9 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GoogleMap_Demo/Info.plist;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Privacy - Location When In Use Usage Description";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Show your location on a map.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Show your location on a map.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Show your location on a map.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -744,7 +742,9 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GoogleMap_Demo/Info.plist;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Privacy - Location When In Use Usage Description";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Show your location on a map.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Show your location on a map.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Show your location on a map.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;

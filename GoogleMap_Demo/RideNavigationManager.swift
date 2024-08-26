@@ -35,6 +35,8 @@ class RideNavigationManager:NSObject,GMSMapViewDelegate{
   
   private func endNavigation() {
      guard let startLocation = originLocation,let endLocation = location else { return}
+      routeLine?.map = nil
+      routeLine = nil
      var bounds = GMSCoordinateBounds()
      let locations = [startLocation,endLocation]
      for location in locations {
@@ -42,19 +44,20 @@ class RideNavigationManager:NSObject,GMSMapViewDelegate{
      }
      guard bounds.isValid else { return }
      mapView.moveCamera(GMSCameraUpdate.fit(bounds, withPadding: 50))
-     routeLine = nil
     
-    // Take a snapshot of the map.
-    UIGraphicsBeginImageContextWithOptions(mapView.bounds.size, true, 0)
-    mapView.drawHierarchy(in: mapView.bounds, afterScreenUpdates: true)
-    let mapSnapshot = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
-    guard let snapshot = mapSnapshot,let startTime = startTime else {return}
-    
-    let timeInterval = Date().timeIntervalSince(startTime)
-    let tripSummary = TripSummary(image: snapshot, distance:totalDistance, time: timeInterval)
-    let tripVc = TripSummaryController(trip: tripSummary)
-    vc?.navigationController?.pushViewController(tripVc, animated: true)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+      // Take a snapshot of the map.
+      UIGraphicsBeginImageContextWithOptions(self.mapView.bounds.size, true, 0)
+      self.mapView.drawHierarchy(in: self.mapView.bounds, afterScreenUpdates: true)
+      let mapSnapshot = UIGraphicsGetImageFromCurrentImageContext()
+      UIGraphicsEndImageContext()
+      guard let snapshot = mapSnapshot,let startTime = self.startTime else {return}
+      
+      let timeInterval = Date().timeIntervalSince(startTime)
+      let tripSummary = TripSummary(image: snapshot, distance:self.totalDistance, time: timeInterval)
+      let tripVc = TripSummaryController(trip: tripSummary)
+      self.vc?.navigationController?.pushViewController(tripVc, animated: true)
+    }
    }
   
   
@@ -94,7 +97,7 @@ class RideNavigationManager:NSObject,GMSMapViewDelegate{
     
     //check is arrived or not.
     let distance = curLocation.distance(from:CLLocation(latitude: end.latitude, longitude: end.longitude))
-    if distance<10 {//is arrived.
+    if distance < SDKConstants.ArrivedDistance {//is arrived.
       self.endNavigation()
       return
     }
@@ -103,7 +106,7 @@ class RideNavigationManager:NSObject,GMSMapViewDelegate{
       return
     }
     //judge if you are riding outside the navigation path
-    let inline =  line.isOnPolyline(coordinate: curLocation.coordinate, tolerance:10)
+    let inline =  line.isOnPolyline(coordinate: curLocation.coordinate, tolerance:SDKConstants.ReplanMaxDistance)
     if !inline,!self.isRecalculate{
       self.isRecalculate = true
       let alert = UIAlertController(
@@ -169,7 +172,7 @@ class RideNavigationManager:NSObject,GMSMapViewDelegate{
   var location: CLLocation? {
     didSet {
       guard oldValue == nil, let firstLocation = location else { return }
-      mapView.camera = GMSCameraPosition(target: firstLocation.coordinate, zoom: 14)
+      mapView.camera = GMSCameraPosition.camera(withLatitude: firstLocation.coordinate.latitude, longitude: firstLocation.coordinate.longitude, zoom: 14)
     }
   }
   

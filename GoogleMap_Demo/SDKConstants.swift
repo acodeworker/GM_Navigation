@@ -21,6 +21,10 @@ enum SDKConstants {
   //#error("Register for API Key and insert here. Then delete this line.")
   static let apiKey = //"AIzaSyCYEjZVnDQWY01I6XMdQq5pj8FXsvu2V28"
   "AIzaSyAyZ4S3bvIDOyrKYR3IGpjl9YmVPVZn_9M"
+  
+  static let ArrivedDistance = 10.0
+  static let ReplanMaxDistance = 10.0
+  static let filterDistance = 5.0
 }
 
 extension CLLocationCoordinate2D {
